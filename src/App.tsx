@@ -8,14 +8,31 @@ import { Toaster } from "@/components/ui/sonner";
 function App() {
   const [email, setEmail] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    
-    toast.success("You've been added to the waitlist!", {
-      description: "We'll notify you when RoomReach launches.",
-    });
-    setEmail("");
+  
+    try {
+      const res = await fetch('/.netlify/functions/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+  
+      if (res.ok) {
+        toast.success("You've been added to the waitlist!", {
+          description: "We'll notify you when RoomReach launches.",
+        });
+        setEmail("");
+      } else {
+        toast.error("Error adding email to waitlist");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An unexpected error occurred");
+    }
   };
 
   return (
